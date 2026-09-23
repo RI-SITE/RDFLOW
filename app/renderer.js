@@ -1043,7 +1043,7 @@ function showDemoBanner() {
   if (btn) btn.addEventListener('click', () => { toast(DEMO_DOWNLOAD_URL ? '' : 'رابط التحميل سيُضاف قريبًا'); if (DEMO_DOWNLOAD_URL) location.href = DEMO_DOWNLOAD_URL; });
 }
 // نفس الرابط الموجود بـupdate-check.js (SITE_URL) وpackage.json (build.publish.url) — استبدل الثلاثة معًا عند تجهيز الاستضافة
-const SITE_URL = (window.UpdateCheck && UpdateCheck.getSiteUrl) ? UpdateCheck.getSiteUrl() : 'https://REPLACE-ME.github.io/rdflow-site/';
+const SITE_URL = (window.UpdateCheck && UpdateCheck.getSiteUrl) ? UpdateCheck.getSiteUrl() : 'https://ri-site.github.io/RDFLOW/';
 const DEMO_DOWNLOAD_URL = SITE_URL;
 
 // نسخة احتياطية محلية تلقائية، مرة وحدة باليوم بالكثير، بلا أي علاقة بمزامنة

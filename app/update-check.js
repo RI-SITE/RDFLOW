@@ -28,7 +28,7 @@
 
   // نفس الرابط المستخدم في package.json (build.publish.url) وفي renderer.js
   // (SITE_URL) — استبدله بنفس القيمة في الأماكن الثلاثة عند تجهيز الاستضافة
-  const SITE_URL = 'https://REPLACE-ME.github.io/rdflow-site/';
+  const SITE_URL = 'https://ri-site.github.io/RDFLOW/';
   const CHECK_URL = SITE_URL + 'version.json';
 
   const LS_KEY = 'rdflow_update_state_v1';
