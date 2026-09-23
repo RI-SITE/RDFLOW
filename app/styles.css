@@ -1330,7 +1330,12 @@ body[data-perf="low"] .fancydate-btn.primary:hover { transform: none !important;
 .update-forced-card p { margin: 0 0 10px; font-size: 13.5px; line-height: 1.7; }
 .update-forced-actions { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 14px; }
 .update-forced-note { font-size: 12px; min-height: 16px; }
-.update-progress { width: 100%; max-width: 220px; height: 8px; border-radius: 5px; background: rgba(255,255,255,.12); overflow: hidden; }
+.update-progress { width: 100%; max-width: 220px; height: 8px; border-radius: 5px; background: rgba(255,255,255,.12); overflow: hidden; position: relative; }
 .update-progress-bar { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent-2)); transition: width .3s ease; }
+.update-progress-bar.checking { width: 40% !important; position: absolute; top: 0; animation: update-checking-sweep 1.1s ease-in-out infinite; }
+@keyframes update-checking-sweep {
+  0% { left: -40%; }
+  100% { left: 100%; }
+}
 #demoBanner button { background: rgba(255,255,255,.18); border: 1px solid rgba(255,255,255,.4); color: #fff; border-radius: 8px; padding: 4px 12px; font-size: 12px; font-weight: 700; cursor: pointer; }
 #demoBanner button:hover { background: rgba(255,255,255,.3); }

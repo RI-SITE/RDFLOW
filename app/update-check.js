@@ -51,6 +51,16 @@
   // حالة التحديث الأصلي الحقيقي (Electron فقط حاليًا): idle | checking | downloading | downloaded | error
   let nativeStatus = 'idle';
   let nativePercent = 0;
+  let nativeStuckTimer = null;
+  const NATIVE_STUCK_TIMEOUT_MS = 20000; // لا نحبس المستخدم بشريط عالق للأبد — بعد 20 ثانية بلا أي تقدّم نحوّلها خطأ واضح فيه مخرج يدوي
+
+  function armStuckTimer() {
+    clearStuckTimer();
+    nativeStuckTimer = setTimeout(() => {
+      if (nativeStatus === 'checking' || nativeStatus === 'downloading') { nativeStatus = 'error'; paintAll(); }
+    }, NATIVE_STUCK_TIMEOUT_MS);
+  }
+  function clearStuckTimer() { if (nativeStuckTimer) { clearTimeout(nativeStuckTimer); nativeStuckTimer = null; } }
 
   function isDemo() { return !!(window.Platform && Platform.platformName === 'demo'); }
   function hasNativeUpdater() { return !!(window.Platform && Platform.updater && Platform.platformName === 'electron'); }
@@ -62,6 +72,7 @@
       nativeStatus = s === 'checking' ? 'checking' : s === 'available' ? 'downloading' : s === 'downloading' ? 'downloading'
         : s === 'downloaded' ? 'downloaded' : s === 'error' ? 'error' : s === 'not-available' ? 'idle' : nativeStatus;
       if (payload && typeof payload.percent === 'number') nativePercent = payload.percent;
+      if (nativeStatus === 'checking' || nativeStatus === 'downloading') armStuckTimer(); else clearStuckTimer();
       paintAll();
     });
   }
@@ -112,8 +123,8 @@
   // زر "تحديث الآن" الموحّد: فعليًا بضغطة واحدة حسب المنصّة، رابط الموقع خيار أخير فقط
   function triggerUpdate(info) {
     if (hasNativeUpdater()) {
-      nativeStatus = 'checking'; paintAll();
-      Platform.updater.check().then((r) => { if (!r || !r.ok) { nativeStatus = 'error'; paintAll(); } });
+      nativeStatus = 'checking'; paintAll(); armStuckTimer();
+      Platform.updater.check().then((r) => { if (!r || !r.ok) { nativeStatus = 'error'; clearStuckTimer(); paintAll(); } });
       return;
     }
     if (isAndroid() && info && info.downloads && info.downloads.android) {
@@ -136,7 +147,7 @@
     if (nativeStatus === 'downloaded') return `<button class="btn" type="button" id="${idPrefix}InstallBtn">🔁 أعد التشغيل والتثبيت الآن</button>`;
     // حتى لو التحميل التلقائي عالق أو ما استجاب، يبقى رابط يدوي شغّال دائمًا — ما نحبس أحد بلا مخرج
     if (nativeStatus === 'downloading' || nativeStatus === 'checking') {
-      return `<div class="update-progress"><div class="update-progress-bar" style="width:${nativeStatus === 'checking' ? 5 : nativePercent}%"></div></div>
+      return `<div class="update-progress"><div class="update-progress-bar${nativeStatus === 'checking' ? ' checking' : ''}" style="width:${nativeStatus === 'checking' ? 40 : nativePercent}%"></div></div>
         <a class="btn ghost sm" style="margin-top:6px;" href="${SITE_URL}" target="_blank" rel="noopener">أو نزّل يدويًا من الموقع</a>`;
     }
     return `<button class="btn" type="button" id="${idPrefix}UpdateBtn">⬇️ تحديث الآن (تلقائي)</button>`;
