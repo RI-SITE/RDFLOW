@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'; connect-src 'self' https://*.supabase.co https://*.github.io; img-src 'self' https://*.supabase.co">
+<title>RD Flow</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div id="authScreen" class="hidden"></div>
+
+<div id="demoBanner" class="hidden">
+  <span>🧪 وضع التجربة — بيانات وهمية، وأي تعديل يضيع عند تحديث الصفحة، لا يُحفظ في أي مكان</span>
+  <button id="demoDownloadBtn" type="button">حمّل التطبيق</button>
+</div>
+
+<div id="app">
+
+  <header id="topbar">
+    <div class="brand">
+      <div class="brand-logo-wrap" title="RD Flow">
+        <img class="brand-logo-img" src="assets/rdflow-logo-mark.png" alt="RD Flow" draggable="false">
+      </div>
+      <div class="brand-text">
+        <h1 class="brand-name"><span class="brand-name-rd">RD</span> <span class="brand-name-flow">Flow</span></h1>
+        <span class="brand-tagline">MASTER YOUR MONEY FLOW</span>
+      </div>
+      <button id="topbarAccountBtn" class="topbar-avatar-wrap" type="button" title="حسابي">
+        <span id="topbarAccountAvatar" class="topbar-avatar"></span>
+      </button>
+    </div>
+    <nav id="mainNav"></nav>
+    <div class="topbar-right" style="display:flex; align-items:center; gap:10px;">
+      <button id="historyBackBtn" title="رجوع لخطوة سابقة (Ctrl+Z)" disabled>
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg>
+      </button>
+      <button id="historyFwdBtn" title="تقدّم للأمام (Ctrl+Y)" disabled>
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 14 5-5-5-5"/><path d="M20 9H9.5a5.5 5.5 0 0 0 0 11H13"/></svg>
+      </button>
+      <button id="searchBtn" title="بحث">🔎 <span class="btn-label">بحث</span></button>
+      <button id="notifBtn" title="الإشعارات">🔔<span id="notifDot"></span></button>
+      <span id="saveStatus" class="save-status">محفوظ</span>
+    </div>
+  </header>
+
+  <div id="confirmPanel" class="hidden"></div>
+
+  <div id="chartTooltip"></div>
+
+  <div id="notifPanel" class="hidden"></div>
+
+  <div id="searchPanel" class="hidden">
+    <div id="searchBox">
+      <input type="text" id="searchInput" placeholder="ابحث عن حركة، عميل، ملاحظة...">
+      <div id="searchResults"></div>
+    </div>
+  </div>
+
+  <main id="viewport">
+    <section id="view-dashboard" class="view"></section>
+    <section id="view-yearly" class="view"></section>
+    <section id="view-clients" class="view"></section>
+    <section id="view-calendar" class="view"></section>
+    <section id="view-notes" class="view"></section>
+    <section id="view-planning" class="view"></section>
+    <section id="view-wealth" class="view"></section>
+    <section id="view-control" class="view"></section>
+    <section id="view-settings" class="view"></section>
+  </main>
+
+  <div id="appVersionTag" class="app-version-tag">RD FLOW v27</div>
+
+</div>
+
+<div id="toastHost"></div>
+<div id="assistantHost"></div>
+
+<script src="auth.js"></script>
+<script src="sync.js"></script>
+<script src="platform.js"></script>
+<script src="update-check.js"></script>
+<script src="renderer.js"></script>
+</body>
+</html>

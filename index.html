@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RD Flow — تطبيق إدارة الأموال الشخصي</title>
+<link rel="icon" type="image/png" href="assets/logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #050507; --bg-2: #0a0a0d; --border: rgba(255,255,255,0.09);
+    --text: #f1f3fa; --text-muted: #8d93a8; --accent: #4f7cff; --accent-2: #7c5cff;
+    --green: #22d3a8; --metal-1: #f6f8fd; --metal-2: #9fb3d1;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font-family: 'Tajawal', 'Segoe UI', Tahoma, Arial, sans-serif; line-height: 1.75;
+    padding: 56px clamp(16px, 6vw, 64px) 90px; position: relative; overflow-x: hidden;
+    min-height: 100vh;
+  }
+  /* ---------- خلفية فخمة: شبكة نقاط خفيفة + كرات ضوء زجاجية عائمة ---------- */
+  body::before {
+    content: ''; position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background-image: radial-gradient(rgba(255,255,255,0.05) 1px, transparent 1px);
+    background-size: 26px 26px; opacity: .5;
+  }
+  .bg-orbs { position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; }
+  .orb { position: absolute; border-radius: 50%; filter: blur(70px); opacity: .38; will-change: transform; }
+  .orb-a { width: 480px; height: 480px; background: var(--accent); top: -160px; right: -120px; animation: float1 16s ease-in-out infinite alternate; }
+  .orb-b { width: 420px; height: 420px; background: var(--accent-2); bottom: -140px; left: -100px; animation: float2 19s ease-in-out infinite alternate; }
+  .orb-c { width: 320px; height: 320px; background: var(--green); top: 40%; left: 50%; opacity: .22; animation: float3 22s ease-in-out infinite alternate; }
+  @keyframes float1 { from { transform: translate(0,0); } to { transform: translate(-30px, 40px); } }
+  @keyframes float2 { from { transform: translate(0,0); } to { transform: translate(30px, -30px); } }
+  @keyframes float3 { from { transform: translate(-50%,-50%) scale(1); } to { transform: translate(-55%,-45%) scale(1.15); } }
+
+  .wrap { max-width: 760px; margin: 0 auto; position: relative; z-index: 1; }
+
+  /* ---------- كشف تدريجي منظّم عند فتح الصفحة (حركة واحدة منسّقة، لا حركات مبعثرة) ---------- */
+  .reveal { opacity: 0; transform: translateY(18px); transition: opacity .7s cubic-bezier(.2,.7,.3,1), transform .7s cubic-bezier(.2,.7,.3,1); transition-delay: calc(var(--d, 0) * 110ms); }
+  html.ready .reveal { opacity: 1; transform: none; }
+
+  header { text-align: center; margin-bottom: 34px; }
+  .logo-badge {
+    width: 92px; height: 92px; margin: 0 auto 18px; border-radius: 26px;
+    background: linear-gradient(160deg, rgba(255,255,255,.08), rgba(255,255,255,.02));
+    border: 1px solid var(--border); backdrop-filter: blur(14px);
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 0 0 1px rgba(255,255,255,.02), 0 20px 50px -10px rgba(79,124,255,.35);
+    animation: pulseGlow 5s ease-in-out infinite;
+  }
+  .logo-badge img { width: 56px; height: 56px; border-radius: 14px; display: block; }
+  @keyframes pulseGlow {
+    0%, 100% { box-shadow: 0 0 0 1px rgba(255,255,255,.02), 0 20px 50px -10px rgba(79,124,255,.35); }
+    50% { box-shadow: 0 0 0 1px rgba(255,255,255,.02), 0 22px 60px -8px rgba(124,92,255,.5); }
+  }
+  header h1 {
+    font-size: clamp(30px, 5vw, 40px); margin: 0 0 6px; font-weight: 900; letter-spacing: .5px;
+    background: linear-gradient(180deg, var(--metal-1), var(--metal-2));
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    filter: drop-shadow(0 2px 18px rgba(159,179,209,.18));
+  }
+  header .tagline { color: var(--text-muted); margin: 0 0 20px; font-size: 14px; font-weight: 500; }
+  .feature-strip { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+  .feature-strip span {
+    font-size: 12.5px; color: var(--text-muted); background: rgba(255,255,255,.04);
+    border: 1px solid var(--border); padding: 7px 14px; border-radius: 999px; backdrop-filter: blur(8px);
+  }
+
+  .card {
+    background: linear-gradient(180deg, rgba(255,255,255,.045), rgba(255,255,255,.015));
+    border: 1px solid var(--border); border-radius: 22px; padding: 24px;
+    margin-bottom: 18px; backdrop-filter: blur(16px);
+    box-shadow: 0 16px 40px -18px rgba(0,0,0,.6);
+    transition: transform .35s ease, box-shadow .35s ease, border-color .35s ease;
+  }
+  .card.hoverable:hover { transform: translateY(-4px); border-color: rgba(255,255,255,.16); box-shadow: 0 24px 50px -16px rgba(0,0,0,.65); }
+  .card.primary { border-color: rgba(79,124,255,.5); box-shadow: 0 0 0 1px rgba(79,124,255,.12), 0 20px 50px -18px rgba(79,124,255,.35); }
+  .card h2 { margin: 0 0 6px; font-size: 17px; display: flex; align-items: center; gap: 8px; font-weight: 800; }
+  .card .ver { color: var(--text-muted); font-size: 12.5px; margin-bottom: 14px; }
+
+  /* بطاقة التجربة: البطل البصري الوحيد بالصفحة — حدّ متوهّج متحرك بهدوء */
+  .trial-card { position: relative; border-color: transparent; }
+  .trial-card::before {
+    content: ''; position: absolute; inset: 0; border-radius: 22px; padding: 1px;
+    background: linear-gradient(120deg, var(--green), var(--accent-2), var(--green));
+    background-size: 200% 200%; animation: shimmer 6s linear infinite;
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor; mask-composite: exclude; pointer-events: none;
+  }
+  @keyframes shimmer { 0% { background-position: 0% 50%; } 100% { background-position: 200% 50%; } }
+  .trial-card h2 { font-size: 19px; }
+
+  .btn {
+    display: inline-block; background: linear-gradient(135deg, var(--accent), #6a8cff);
+    color: #fff; text-decoration: none; padding: 12px 24px; border-radius: 13px;
+    font-weight: 700; font-size: 14px; font-family: inherit; border: none; cursor: pointer;
+    box-shadow: 0 10px 24px -8px rgba(79,124,255,.55); transition: transform .2s ease, box-shadow .2s ease, filter .2s ease;
+  }
+  .btn:hover { transform: translateY(-2px); filter: brightness(1.08); box-shadow: 0 14px 30px -8px rgba(79,124,255,.65); }
+  .btn.ghost { background: transparent; border: 1px solid var(--border); color: var(--text); box-shadow: none; }
+  .btn.trial { background: linear-gradient(135deg, var(--green), #16b892); box-shadow: 0 10px 24px -8px rgba(34,211,168,.55); }
+  .btn[disabled], .btn.disabled { opacity: .5; pointer-events: none; filter: grayscale(.4); }
+
+  .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+  .muted { color: var(--text-muted); font-size: 12.5px; }
+  .tip { font-size: 12px; color: var(--text-muted); margin-top: 10px; }
+  .notes-box { background: rgba(255,255,255,.03); border-radius: 14px; padding: 14px 16px; font-size: 13px; border: 1px solid var(--border); }
+  .secondary-title { font-size: 13px; color: var(--text-muted); margin: 32px 4px 14px; font-weight: 700; }
+  #statusMsg { text-align: center; color: var(--text-muted); font-size: 13px; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 620px) { .grid-2 { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<div class="bg-orbs" aria-hidden="true"><span class="orb orb-a"></span><span class="orb orb-b"></span><span class="orb orb-c"></span></div>
+<div class="wrap">
+  <header class="reveal" style="--d:0;">
+    <div class="logo-badge"><img src="assets/logo.png" alt="RD Flow"></div>
+    <h1>RD Flow</h1>
+    <p class="tagline">MASTER YOUR MONEY FLOW — تطبيق إدارة الأموال الشخصي</p>
+    <div class="feature-strip">
+      <span>⚡ مزامنة فورية بين أجهزتك</span>
+      <span>🔒 بياناتك خاصة بجهازك وحدك</span>
+      <span>🧪 تجربة مجانية بلا تسجيل</span>
+    </div>
+  </header>
+
+  <div class="card trial-card reveal" style="--d:1;">
+    <h2>🧪 جرّب التطبيق الآن، بدون تحميل</h2>
+    <p class="muted" style="margin:0 0 16px;">تفتح لك نسخة تجريبية ببيانات واقعية جاهزة مباشرة بالمتصفح — بدون تسجيل دخول وبدون أي تثبيت. جرّب، عدّل، أضف أرقامك الخاصة بحرية؛ فقط تذكّر أن أي تعديل يضيع عند تحديث الصفحة (تجربة حرة غير محفوظة) — حمّل التطبيق من الأسفل إذا حبيت تحتفظ ببياناتك.</p>
+    <a class="btn trial" href="app/index.html?demo=1">جرّب الآن مجانًا</a>
+  </div>
+
+  <div class="secondary-title reveal" style="--d:2;">حمّل التطبيق كاملًا لجهازك، وتحديثاته تلقائية بعدها</div>
+  <div id="statusMsg" class="reveal" style="--d:2;">جارٍ تحميل معلومات آخر نسخة...</div>
+  <div id="content" style="display:none;">
+    <div id="downloadsGrid" class="grid-2 reveal" style="--d:3;"></div>
+    <div class="card reveal" style="--d:4; margin-top:6px;">
+      <h2>📝 ملاحظات هذا الإصدار</h2>
+      <div class="notes-box" id="notesBox"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  // كشف تدريجي واحد منظّم عند اكتمال تحميل الصفحة
+  requestAnimationFrame(() => requestAnimationFrame(() => document.documentElement.classList.add('ready')));
+
+  // تحرّك بسيط وهادئ لكرات الضوء تبعًا لموضع الماوس (لمسة فخامة، بلا مبالغة)
+  const orbs = document.querySelectorAll('.orb');
+  window.addEventListener('mousemove', (e) => {
+    const x = (e.clientX / window.innerWidth - .5) * 24;
+    const y = (e.clientY / window.innerHeight - .5) * 24;
+    orbs.forEach((o, i) => { o.style.transform = `translate(${x * (i + 1) * .4}px, ${y * (i + 1) * .4}px)`; });
+  }, { passive: true });
+
+  const ua = navigator.userAgent || '';
+  const isAndroidUA = /Android/i.test(ua);
+  const params = new URLSearchParams(location.search);
+  const forcedPlatform = params.get('platform');
+  const primaryPlatform = forcedPlatform === 'android' || forcedPlatform === 'windows' ? forcedPlatform : (isAndroidUA ? 'android' : 'windows');
+
+  // فقط خياران فعليًا: أندرويد وويندوز (نسخة التثبيت الكاملة) — بلا نسخة محمولة،
+  // حتى يُثبَّت التطبيق تثبيتًا حقيقيًا على الجهاز فتعمل التحديثات التلقائية المستقبلية بلا مشاكل
+  const PLATFORM_META = {
+    windows: { icon: '🖥️', label: 'ويندوز', tip: 'قد تظهر رسالة من ويندوز عند أول تشغيل — اضغط "معلومات إضافية" ثم "تشغيل على أي حال" وتابع بثقة.' },
+    android: { icon: '📱', label: 'أندرويد', tip: 'بعد التحميل افتح الملف واضغط "تثبيت". إن كان التطبيق مثبّتًا أصلًا، يُحدَّث فوقه مباشرة بدون فقدان بياناتك.' }
+  };
+
+  function cardHtml(key, info, isPrimary) {
+    const meta = PLATFORM_META[key];
+    const url = (info.downloads && info.downloads[key]) || null;
+    return `<div class="card hoverable ${isPrimary ? 'primary' : ''}" data-platform-card="${key}">
+      <h2>${meta.icon} ${meta.label}</h2>
+      <div class="ver">الإصدار v${info.latest}${info.publishedAt ? ' · ' + info.publishedAt : ''}</div>
+      <div class="row" data-dl-row="${key}">
+        ${url ? `<a class="btn" href="${url}" data-dl-link="${key}">تحميل الآن</a>` : `<span class="muted">⏳ الملف لم يُرفَع بعد — سيتوفر قريبًا</span>`}
+      </div>
+      <p class="tip">${meta.tip}</p>
+    </div>`;
+  }
+
+  function verifyDownloadLinks() {
+    document.querySelectorAll('[data-dl-link]').forEach((a) => {
+      const url = a.getAttribute('href');
+      fetch(url, { method: 'HEAD', cache: 'no-store' }).then((res) => { if (!res.ok) throw new Error('missing'); })
+        .catch(() => { const row = a.closest('[data-dl-row]'); if (row) row.innerHTML = `<span class="muted">⏳ الملف لم يُرفَع بعد — سيتوفر قريبًا</span>`; });
+    });
+  }
+
+  fetch('version.json?t=' + Date.now(), { cache: 'no-store' })
+    .then(r => r.json())
+    .then(info => {
+      document.getElementById('statusMsg').style.display = 'none';
+      document.getElementById('content').style.display = 'block';
+      const order = primaryPlatform === 'android' ? ['android', 'windows'] : ['windows', 'android'];
+      document.getElementById('downloadsGrid').innerHTML = order.map((k, i) => cardHtml(k, info, i === 0)).join('');
+      document.getElementById('notesBox').textContent = info.notes || '—';
+      verifyDownloadLinks();
+    })
+    .catch(() => { document.getElementById('statusMsg').textContent = 'تعذّر تحميل معلومات النسخة حاليًا — أعد المحاولة لاحقًا.'; });
+})();
+</script>
+</body>
+</html>
