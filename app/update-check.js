@@ -134,14 +134,19 @@
   function nativeActionButtonHtml(idPrefix) {
     if (!hasNativeUpdater()) return '';
     if (nativeStatus === 'downloaded') return `<button class="btn" type="button" id="${idPrefix}InstallBtn">🔁 أعد التشغيل والتثبيت الآن</button>`;
-    if (nativeStatus === 'downloading' || nativeStatus === 'checking') return `<div class="update-progress"><div class="update-progress-bar" style="width:${nativeStatus === 'checking' ? 5 : nativePercent}%"></div></div>`;
+    // حتى لو التحميل التلقائي عالق أو ما استجاب، يبقى رابط يدوي شغّال دائمًا — ما نحبس أحد بلا مخرج
+    if (nativeStatus === 'downloading' || nativeStatus === 'checking') {
+      return `<div class="update-progress"><div class="update-progress-bar" style="width:${nativeStatus === 'checking' ? 5 : nativePercent}%"></div></div>
+        <a class="btn ghost sm" style="margin-top:6px;" href="${SITE_URL}" target="_blank" rel="noopener">أو نزّل يدويًا من الموقع</a>`;
+    }
     return `<button class="btn" type="button" id="${idPrefix}UpdateBtn">⬇️ تحديث الآن (تلقائي)</button>`;
   }
 
-  function bindNativeActionButton(idPrefix, info) {
-    const installBtn = document.getElementById(idPrefix + 'InstallBtn');
+  function bindNativeActionButton(root, idPrefix, info) {
+    const scope = root || document;
+    const installBtn = scope.querySelector('#' + idPrefix + 'InstallBtn');
     if (installBtn) installBtn.addEventListener('click', () => Platform.updater.install());
-    const updateBtn = document.getElementById(idPrefix + 'UpdateBtn');
+    const updateBtn = scope.querySelector('#' + idPrefix + 'UpdateBtn');
     if (updateBtn) updateBtn.addEventListener('click', () => triggerUpdate(info));
   }
 
@@ -161,8 +166,8 @@
         ${native ? nativeActionButtonHtml('softBanner') : `<a href="${SITE_URL}" target="_blank" rel="noopener">تحميل</a>`}
         <button type="button" id="updateSoftDismiss">✕</button>
       </span>`;
-    bindNativeActionButton('softBanner', info);
-    const dismiss = document.getElementById('updateSoftDismiss');
+    bindNativeActionButton(bar, 'softBanner', info);
+    const dismiss = bar.querySelector('#updateSoftDismiss');
     if (dismiss) dismiss.addEventListener('click', () => { state.dismissedVersion = info.latest; saveState(state); bar.remove(); });
   }
 
@@ -188,9 +193,10 @@
         </div>
         <p class="muted update-forced-note" id="updateForcedBackupNote"></p>
       </div>`;
-    bindNativeActionButton('forced', info);
-    document.getElementById('updateForcedBackupBtn').addEventListener('click', async () => {
-      const note = document.getElementById('updateForcedBackupNote');
+    bindNativeActionButton(wrap, 'forced', info);
+    const backupBtn = wrap.querySelector('#updateForcedBackupBtn');
+    if (backupBtn) backupBtn.addEventListener('click', async () => {
+      const note = wrap.querySelector('#updateForcedBackupNote');
       try {
         if (window.Platform && Platform.exportToFile) {
           await Platform.exportToFile(window.DATA || {});
@@ -238,7 +244,7 @@
       </div>`;
     const btn = document.getElementById('updateCheckNowBtn');
     if (btn) btn.addEventListener('click', check);
-    if (latest != null && latest > APP_VERSION) bindNativeActionButton('panel', lastInfo);
+    if (latest != null && latest > APP_VERSION) bindNativeActionButton(el, 'panel', lastInfo);
   }
 
   window.UpdateCheck = { check, paintStatusPanel, getVersion: () => APP_VERSION, getSiteUrl: () => SITE_URL };
