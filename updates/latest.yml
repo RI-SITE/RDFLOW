@@ -1,8 +1,8 @@
-version: 28.0.0
+version: 27.0.0
 files:
   - url: RD-Flow-Setup-v28.exe
-    sha512: pla8RCG0sIBKrOwwW/QwGsdt6FUoegMKRYi5v6E32DFgDrsp6B2tLtvAGBmhV2X7ip+gLKjnY1Jxtl+eXgA4bg==
-    size: 88107356
+    sha512: +CTw+q16oWiVmR/kXKBzOdEFVWvCNPQysEhXNj7CLCHCuZolFnQdrrJxZ9Th1O84cmGc/9AWC9QYUKdTzgvJ9A==
+    size: 88107493
 path: RD-Flow-Setup-v28.exe
-sha512: pla8RCG0sIBKrOwwW/QwGsdt6FUoegMKRYi5v6E32DFgDrsp6B2tLtvAGBmhV2X7ip+gLKjnY1Jxtl+eXgA4bg==
-releaseDate: '2026-09-24T11:22:48.409Z'
+sha512: +CTw+q16oWiVmR/kXKBzOdEFVWvCNPQysEhXNj7CLCHCuZolFnQdrrJxZ9Th1O84cmGc/9AWC9QYUKdTzgvJ9A==
+releaseDate: '2026-09-24T13:39:34.975Z'
