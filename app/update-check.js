@@ -72,6 +72,7 @@
       nativeStatus = s === 'checking' ? 'checking' : s === 'available' ? 'downloading' : s === 'downloading' ? 'downloading'
         : s === 'downloaded' ? 'downloaded' : s === 'error' ? 'error' : s === 'not-available' ? 'idle' : nativeStatus;
       if (payload && typeof payload.percent === 'number') nativePercent = payload.percent;
+      if (s === 'error') console.error('[RD-UPDATER]', (payload && payload.message) || 'unknown error'); // تشخيص مؤقت — يظهر السبب الحقيقي بالكونسول
       if (nativeStatus === 'checking' || nativeStatus === 'downloading') armStuckTimer(); else clearStuckTimer();
       paintAll();
     });
@@ -124,7 +125,7 @@
   function triggerUpdate(info) {
     if (hasNativeUpdater()) {
       nativeStatus = 'checking'; paintAll(); armStuckTimer();
-      Platform.updater.check().then((r) => { if (!r || !r.ok) { nativeStatus = 'error'; clearStuckTimer(); paintAll(); } });
+      Platform.updater.check().then((r) => { if (!r || !r.ok) { console.error('[RD-UPDATER] check() failed:', r && r.reason); nativeStatus = 'error'; clearStuckTimer(); paintAll(); } });
       return;
     }
     if (isAndroid() && info && info.downloads && info.downloads.android) {

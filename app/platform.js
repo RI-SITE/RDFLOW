@@ -35,6 +35,18 @@
   // بعدة عملات (DA/USD/EUR)، ولتُظهر كل قسم بالتطبيق فعليًا مليئًا بمحتوى واقعي وصالح للأرشيف السنوي
   function buildDemoData() {
     const now = Date.now();
+    // بيانات التجربة تتغيّر عشوائيًا كل مرة تُفتح الصفحة (بدل ثابتة دائمًا) — نفس الواقعية والهيكل، بأسماء وأرقام مختلفة في كل زيارة
+    const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
+    const shuffleTake = (arr, n) => { const a = arr.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a.slice(0, n); };
+    const jitter = 0.75 + Math.random() * 0.65; // معامل عشوائي عام (٪75–140٪) يُطبَّق على أغلب المبالغ الرئيسية بالدينار
+    const J = (n) => Math.round(n * jitter);
+    const CLIENT_NAME_POOL = [
+      'شركة الأفق للتوريدات', 'مؤسسة النجاح للاستشارات', 'متجر البيت الذكي (أونلاين)', 'شركة الرواد للتجارة',
+      'مجموعة النخبة العقارية', 'مصنع الجودة للأثاث', 'مؤسسة الإبداع التقني', 'شركة الوفاء للمقاولات'
+    ];
+    const clientNames = shuffleTake(CLIENT_NAME_POOL, 3);
+    const DEBT_NAME_POOL_I_OWE = ['أخوي (سلفة عاجلة)', 'صاحبي كريم', 'الجار أبو محمد', 'زميل العمل'];
+    const DEBT_NAME_POOL_THEY_OWE = ['دفعة متأخرة من عميل', 'قريبي (سلفة قديمة)', 'صديق الجامعة'];
     const cat = (id, name, type, color) => ({ id, name, type, color, deleted: false, updatedAt: 1 });
     const categories = [
       cat('dcat_salary', 'راتب / دخل رئيسي', 'income', '#22d3a8'), cat('dcat_freelance', 'عمل حر ومشاريع', 'income', '#4f7cff'),
@@ -44,16 +56,16 @@
       cat('dcat_health', 'صحة وعلاج', 'expense', '#ec4899'), cat('dcat_edu', 'تعليم وتطوير', 'expense', '#38bdf8')
     ];
     const clients = [
-      { id: 'dcl_1', name: 'شركة الأفق للتوريدات', currency: 'DA', createdAt: now - 900 * DAY, deleted: false, updatedAt: 1 },
-      { id: 'dcl_2', name: 'مؤسسة النجاح للاستشارات', currency: 'DA', createdAt: now - 700 * DAY, deleted: false, updatedAt: 1 },
-      { id: 'dcl_3', name: 'متجر البيت الذكي (أونلاين)', currency: 'DA', createdAt: now - 500 * DAY, deleted: false, updatedAt: 1 },
+      { id: 'dcl_1', name: clientNames[0], currency: 'DA', createdAt: now - 900 * DAY, deleted: false, updatedAt: 1 },
+      { id: 'dcl_2', name: clientNames[1], currency: 'DA', createdAt: now - 700 * DAY, deleted: false, updatedAt: 1 },
+      { id: 'dcl_3', name: clientNames[2], currency: 'DA', createdAt: now - 500 * DAY, deleted: false, updatedAt: 1 },
       { id: 'dcl_4', name: 'Global Remote Co.', currency: 'USD', createdAt: now - 400 * DAY, deleted: false, updatedAt: 1 },
       { id: 'dcl_5', name: 'Client Europe (Freelance)', currency: 'EUR', createdAt: now - 300 * DAY, deleted: false, updatedAt: 1 }
     ];
     const projects = [
-      { id: 'dpr_1', clientId: 'dcl_1', title: 'عقد توريد سنوي', agreedAmount: 180000, currency: 'DA', deleted: false, updatedAt: 1 },
-      { id: 'dpr_2', clientId: 'dcl_2', title: 'استشارة تطوير أعمال', agreedAmount: 90000, currency: 'DA', deleted: false, updatedAt: 1 },
-      { id: 'dpr_3', clientId: 'dcl_3', title: 'إدارة المتجر الإلكتروني', agreedAmount: 60000, currency: 'DA', deleted: false, updatedAt: 1 },
+      { id: 'dpr_1', clientId: 'dcl_1', title: 'عقد توريد سنوي', agreedAmount: J(180000), currency: 'DA', deleted: false, updatedAt: 1 },
+      { id: 'dpr_2', clientId: 'dcl_2', title: 'استشارة تطوير أعمال', agreedAmount: J(90000), currency: 'DA', deleted: false, updatedAt: 1 },
+      { id: 'dpr_3', clientId: 'dcl_3', title: 'إدارة المتجر الإلكتروني', agreedAmount: J(60000), currency: 'DA', deleted: false, updatedAt: 1 },
       { id: 'dpr_4', clientId: 'dcl_4', title: 'Monthly Retainer', agreedAmount: 4200, currency: 'USD', deleted: false, updatedAt: 1 },
       { id: 'dpr_5', clientId: 'dcl_5', title: 'Freelance Design Project', agreedAmount: 1800, currency: 'EUR', deleted: false, updatedAt: 1 }
     ];
@@ -62,41 +74,41 @@
       { id: demoUid(), kind, mode, amount, currency, date, categoryId: categoryId || null, note: note || '', flagged: false, createdAt: now, updatedAt: now, deleted: false }, extra || {}));
 
     // دخل: راتب/دخل رئيسي ثابت تقريبًا على 3 سنوات كاملة (36 شهرًا)، بزيادة تدريجية بسيطة
-    for (let m = 35; m >= 0; m--) mkTx('income', 'general', 45000 + (35 - m) * 300, 'DA', monthsAgo(m, 1), 'dcat_salary', 'راتب / دخل الشهر');
+    for (let m = 35; m >= 0; m--) mkTx('income', 'general', J(45000) + (35 - m) * 300, 'DA', monthsAgo(m, 1), 'dcat_salary', 'راتب / دخل الشهر');
     // دخل عملاء موزّع على 5 مشاريع بنسب دفع مختلفة (بعضها مكتمل، بعضها جزئي) — يظهر تنوع حالة الدفع بصفحة العملاء
-    mkTx('income', 'client', 90000, 'DA', monthsAgo(30, 10), null, 'الدفعة الأولى', { projectId: 'dpr_1' });
-    mkTx('income', 'client', 90000, 'DA', monthsAgo(18, 5), null, 'الدفعة الثانية والأخيرة', { projectId: 'dpr_1' });
-    mkTx('income', 'client', 45000, 'DA', monthsAgo(20, 15), null, 'دفعة أولى', { projectId: 'dpr_2' });
-    mkTx('income', 'client', 20000, 'DA', monthsAgo(9, 15), null, 'دفعة إضافية (لسا ناقص من العقد)', { projectId: 'dpr_2' });
-    for (let m = 14; m >= 0; m -= 2) mkTx('income', 'client', 5000, 'DA', monthsAgo(m, 20), null, 'دفعة دورية', { projectId: 'dpr_3' });
+    mkTx('income', 'client', J(90000), 'DA', monthsAgo(30, 10), null, 'الدفعة الأولى', { projectId: 'dpr_1' });
+    mkTx('income', 'client', J(90000), 'DA', monthsAgo(18, 5), null, 'الدفعة الثانية والأخيرة', { projectId: 'dpr_1' });
+    mkTx('income', 'client', J(45000), 'DA', monthsAgo(20, 15), null, 'دفعة أولى', { projectId: 'dpr_2' });
+    mkTx('income', 'client', J(20000), 'DA', monthsAgo(9, 15), null, 'دفعة إضافية (لسا ناقص من العقد)', { projectId: 'dpr_2' });
+    for (let m = 14; m >= 0; m -= 2) mkTx('income', 'client', J(5000), 'DA', monthsAgo(m, 20), null, 'دفعة دورية', { projectId: 'dpr_3' });
     for (let m = 17; m >= 0; m--) mkTx('income', 'client', 350, 'USD', monthsAgo(m, 7), null, 'Monthly retainer', { projectId: 'dpr_4' });
     for (let m = 22; m >= 2; m -= 4) mkTx('income', 'client', 300, 'EUR', monthsAgo(m, 12), null, 'Design milestone', { projectId: 'dpr_5' });
     // دخل عام متفرق (عمولات/مبيعات) على مدار 3 سنوات
-    for (let m = 35; m >= 0; m -= 3) mkTx('income', 'general', 3000 + Math.round(Math.random() * 4000), 'DA', monthsAgo(m, 22), 'dcat_sales', 'عمولة/بيع متفرق');
+    for (let m = 35; m >= 0; m -= 3) mkTx('income', 'general', J(3000) + Math.round(Math.random() * 4000), 'DA', monthsAgo(m, 22), 'dcat_sales', 'عمولة/بيع متفرق');
     // أرباح استثمار (تقريبًا سنويًا، بتزايد)
-    mkTx('income', 'general', 6000, 'DA', monthsAgo(30, 1), 'dcat_invret', 'عائد استثمار — السنة الأولى');
-    mkTx('income', 'general', 8500, 'DA', monthsAgo(18, 1), 'dcat_invret', 'عائد استثمار — السنة الثانية');
-    mkTx('income', 'general', 11000, 'DA', monthsAgo(6, 1), 'dcat_invret', 'عائد استثمار — السنة الثالثة');
+    mkTx('income', 'general', J(6000), 'DA', monthsAgo(30, 1), 'dcat_invret', 'عائد استثمار — السنة الأولى');
+    mkTx('income', 'general', J(8500), 'DA', monthsAgo(18, 1), 'dcat_invret', 'عائد استثمار — السنة الثانية');
+    mkTx('income', 'general', J(11000), 'DA', monthsAgo(6, 1), 'dcat_invret', 'عائد استثمار — السنة الثالثة');
     // مصاريف ثابتة تقريبًا كل شهر على مدار 3 سنوات: سكن، فواتير، تنقلات، تسوق
-    for (let m = 35; m >= 0; m--) mkTx('expense', 'general', 15000, 'DA', monthsAgo(m, 1), 'dcat_housing', 'إيجار الشهر');
-    for (let m = 35; m >= 0; m--) mkTx('expense', 'general', 2200 + Math.round(Math.random() * 800), 'DA', monthsAgo(m, 5), 'dcat_bills', 'كهرباء وماء وإنترنت');
-    for (let m = 35; m >= 0; m--) mkTx('expense', 'general', 1500 + Math.round(Math.random() * 1000), 'DA', monthsAgo(m, 20), 'dcat_transport', 'وقود ومواصلات');
-    for (let m = 35; m >= 0; m--) mkTx('expense', 'general', 1200 + Math.round(Math.random() * 1800), 'DA', monthsAgo(m, 12), 'dcat_shopping', 'تسوق ومصاريف شخصية');
+    for (let m = 35; m >= 0; m--) mkTx('expense', 'general', J(15000), 'DA', monthsAgo(m, 1), 'dcat_housing', 'إيجار الشهر');
+    for (let m = 35; m >= 0; m--) mkTx('expense', 'general', J(2200) + Math.round(Math.random() * 800), 'DA', monthsAgo(m, 5), 'dcat_bills', 'كهرباء وماء وإنترنت');
+    for (let m = 35; m >= 0; m--) mkTx('expense', 'general', J(1500) + Math.round(Math.random() * 1000), 'DA', monthsAgo(m, 20), 'dcat_transport', 'وقود ومواصلات');
+    for (let m = 35; m >= 0; m--) mkTx('expense', 'general', J(1200) + Math.round(Math.random() * 1800), 'DA', monthsAgo(m, 12), 'dcat_shopping', 'تسوق ومصاريف شخصية');
     // صحة (كل 4 أشهر تقريبًا) وتعليم/تطوير (كل 6 أشهر تقريبًا)
-    for (let m = 32; m >= 0; m -= 4) mkTx('expense', 'general', 2000 + Math.round(Math.random() * 3000), 'DA', monthsAgo(m, 14), 'dcat_health', 'فحص طبي / علاج');
-    for (let m = 30; m >= 0; m -= 6) mkTx('expense', 'general', 4000 + Math.round(Math.random() * 3000), 'DA', monthsAgo(m, 17), 'dcat_edu', 'دورة تدريبية / كتب');
+    for (let m = 32; m >= 0; m -= 4) mkTx('expense', 'general', J(2000) + Math.round(Math.random() * 3000), 'DA', monthsAgo(m, 14), 'dcat_health', 'فحص طبي / علاج');
+    for (let m = 30; m >= 0; m -= 6) mkTx('expense', 'general', J(4000) + Math.round(Math.random() * 3000), 'DA', monthsAgo(m, 17), 'dcat_edu', 'دورة تدريبية / كتب');
     // مصاريف بعملات أخرى (لإظهار تعدد العملات بالمصاريف أيضًا، لا فقط بالدخل)
     mkTx('expense', 'general', 60, 'USD', monthsAgo(10, 9), 'dcat_bills', 'اشتراك أداة عمل شهري بالدولار');
     mkTx('expense', 'general', 45, 'EUR', monthsAgo(5, 9), 'dcat_bills', 'اشتراك خدمة أوروبية');
     // مصروفان كبيران لمرة واحدة (سنة 1 وسنة 2) — يظهران بوضوح بالأرشيف السنوي
-    mkTx('expense', 'general', 55000, 'DA', monthsAgo(28, 9), null, 'شراء جهاز/معدة كبيرة');
-    mkTx('expense', 'general', 38000, 'DA', monthsAgo(11, 14), null, 'إصلاح/صيانة كبيرة');
+    mkTx('expense', 'general', J(55000), 'DA', monthsAgo(28, 9), null, 'شراء جهاز/معدة كبيرة');
+    mkTx('expense', 'general', J(38000), 'DA', monthsAgo(11, 14), null, 'إصلاح/صيانة كبيرة');
 
     // ديون: واحد عليك، واحد لك، وواحد قديم مسدَّد بالكامل (يظهر تاريخ الديون المسوّاة أيضًا)
     const debts = [
-      { id: 'ddebt_1', name: 'أخوي (سلفة عاجلة)', type: 'i_owe', currency: 'DA', amount: 15000, paidAmount: 5000, date: daysAgo(40), note: '', reminderAt: null, notifiedAt: null, flagged: false, fromTxId: null, createdAt: now, updatedAt: now, deleted: false },
-      { id: 'ddebt_2', name: 'متجر البيت الذكي (دفعة متأخرة)', type: 'they_owe_me', currency: 'DA', amount: 4000, paidAmount: 0, date: daysAgo(20), note: '', reminderAt: null, notifiedAt: null, flagged: false, fromTxId: null, createdAt: now, updatedAt: now, deleted: false },
-      { id: 'ddebt_3', name: 'صديق (سلفة قديمة، مسدَّدة)', type: 'i_owe', currency: 'DA', amount: 8000, paidAmount: 8000, date: daysAgo(300), note: '', reminderAt: null, notifiedAt: null, flagged: false, fromTxId: null, createdAt: now - 300 * DAY, updatedAt: now - 250 * DAY, deleted: false }
+      { id: 'ddebt_1', name: pick(DEBT_NAME_POOL_I_OWE), type: 'i_owe', currency: 'DA', amount: J(15000), paidAmount: J(5000), date: daysAgo(40), note: '', reminderAt: null, notifiedAt: null, flagged: false, fromTxId: null, createdAt: now, updatedAt: now, deleted: false },
+      { id: 'ddebt_2', name: pick(DEBT_NAME_POOL_THEY_OWE), type: 'they_owe_me', currency: 'DA', amount: J(4000), paidAmount: 0, date: daysAgo(20), note: '', reminderAt: null, notifiedAt: null, flagged: false, fromTxId: null, createdAt: now, updatedAt: now, deleted: false },
+      { id: 'ddebt_3', name: 'صديق (سلفة قديمة، مسدَّدة)', type: 'i_owe', currency: 'DA', amount: J(8000), paidAmount: J(8000), date: daysAgo(300), note: '', reminderAt: null, notifiedAt: null, flagged: false, fromTxId: null, createdAt: now - 300 * DAY, updatedAt: now - 250 * DAY, deleted: false }
     ];
 
     // أنواع الأصول (لازم تكون موجودة حتى تعمل نافذة "أين تضيف المبلغ" واختيار الأصل الافتراضي للاقتطاعات)
@@ -117,42 +129,42 @@
       { id: 'dass_save_eur', type: 'other', name: 'مدخرات باليورو', value: 0, currency: 'EUR', notes: '', lastUpdatedAt: now, createdAt: now - 300 * DAY, updatedAt: now, deleted: false }
     ];
     const assetOps = [
-      { id: demoUid(), assetId: 'dass_bank', kind: 'in', amount: 90000, who: 'شركة الأفق للتوريدات', date: monthsAgo(30, 10), note: '', createdAt: now, updatedAt: now, deleted: false },
-      { id: demoUid(), assetId: 'dass_bank', kind: 'in', amount: 45000, who: 'مؤسسة النجاح للاستشارات', date: monthsAgo(20, 15), note: '', createdAt: now, updatedAt: now, deleted: false },
-      { id: demoUid(), assetId: 'dass_bank', kind: 'out', amount: -55000, who: '', note: 'شراء جهاز/معدة كبيرة', date: monthsAgo(28, 9), createdAt: now, updatedAt: now, deleted: false },
-      { id: demoUid(), assetId: 'dass_bank', kind: 'out', amount: -38000, who: '', note: 'إصلاح/صيانة كبيرة', date: monthsAgo(11, 14), createdAt: now, updatedAt: now, deleted: false },
-      { id: demoUid(), assetId: 'dass_cash', kind: 'in', amount: 20000, who: 'دخل متفرق', date: monthsAgo(1, 18), note: '', createdAt: now, updatedAt: now, deleted: false },
-      { id: demoUid(), assetId: 'dass_wallet', kind: 'in', amount: 12000, who: 'متجر البيت الذكي', date: monthsAgo(2, 3), note: '', createdAt: now, updatedAt: now, deleted: false },
+      { id: demoUid(), assetId: 'dass_bank', kind: 'in', amount: J(90000), who: clientNames[0], date: monthsAgo(30, 10), note: '', createdAt: now, updatedAt: now, deleted: false },
+      { id: demoUid(), assetId: 'dass_bank', kind: 'in', amount: J(45000), who: clientNames[1], date: monthsAgo(20, 15), note: '', createdAt: now, updatedAt: now, deleted: false },
+      { id: demoUid(), assetId: 'dass_bank', kind: 'out', amount: -J(55000), who: '', note: 'شراء جهاز/معدة كبيرة', date: monthsAgo(28, 9), createdAt: now, updatedAt: now, deleted: false },
+      { id: demoUid(), assetId: 'dass_bank', kind: 'out', amount: -J(38000), who: '', note: 'إصلاح/صيانة كبيرة', date: monthsAgo(11, 14), createdAt: now, updatedAt: now, deleted: false },
+      { id: demoUid(), assetId: 'dass_cash', kind: 'in', amount: J(20000), who: 'دخل متفرق', date: monthsAgo(1, 18), note: '', createdAt: now, updatedAt: now, deleted: false },
+      { id: demoUid(), assetId: 'dass_wallet', kind: 'in', amount: J(12000), who: clientNames[2], date: monthsAgo(2, 3), note: '', createdAt: now, updatedAt: now, deleted: false },
       { id: demoUid(), assetId: 'dass_bank_usd', kind: 'in', amount: 350, who: 'Global Remote Co.', date: monthsAgo(1, 7), note: '', createdAt: now, updatedAt: now, deleted: false },
       { id: demoUid(), assetId: 'dass_bank_usd', kind: 'in', amount: 350, who: 'Global Remote Co.', date: monthsAgo(2, 7), note: '', createdAt: now, updatedAt: now, deleted: false },
       { id: demoUid(), assetId: 'dass_save_eur', kind: 'in', amount: 300, who: 'Client Europe', date: monthsAgo(2, 12), note: '', createdAt: now, updatedAt: now, deleted: false }
     ];
     // تحويل بين أصولك الخاصة — يُظهر ميزة "تحويل بين أصولك" فعليًا بسجل حقيقي
     const assetTransfers = [
-      { id: demoUid(), fromAssetId: 'dass_bank', toAssetId: 'dass_wallet', amount: 10000, currency: 'DA', date: daysAgo(35), note: 'تحويل جزء للمحفظة الإلكترونية', createdAt: now, updatedAt: now, deleted: false },
-      { id: demoUid(), fromAssetId: 'dass_cash', toAssetId: 'dass_bank', amount: 5000, currency: 'DA', date: daysAgo(12), note: 'إيداع نقدي بالبنك', createdAt: now, updatedAt: now, deleted: false }
+      { id: demoUid(), fromAssetId: 'dass_bank', toAssetId: 'dass_wallet', amount: J(10000), currency: 'DA', date: daysAgo(35), note: 'تحويل جزء للمحفظة الإلكترونية', createdAt: now, updatedAt: now, deleted: false },
+      { id: demoUid(), fromAssetId: 'dass_cash', toAssetId: 'dass_bank', amount: J(5000), currency: 'DA', date: daysAgo(12), note: 'إيداع نقدي بالبنك', createdAt: now, updatedAt: now, deleted: false }
     ];
     // اقتطاعان متكرران: واحد بأصل افتراضي (يُخصم تلقائيًا عند التوليد — يُظهر ميزة الأصل الافتراضي حيّة)، وآخر بلا أصل (يظهر بقائمة "بانتظار الأصل")
     const recurringTx = [
-      { id: 'drec_1', kind: 'expense', categoryId: 'dcat_housing', amount: 15000, currency: 'DA', dayOfMonth: 1, note: '', assetTypeId: 'bank', active: true, lastGeneratedYM: monthsAgo(1).slice(0, 7), createdAt: now - 900 * DAY, updatedAt: now, deleted: false },
-      { id: 'drec_2', kind: 'expense', categoryId: 'dcat_bills', amount: 2500, currency: 'DA', dayOfMonth: 5, note: '', assetTypeId: null, active: true, lastGeneratedYM: monthsAgo(1).slice(0, 7), createdAt: now - 900 * DAY, updatedAt: now, deleted: false }
+      { id: 'drec_1', kind: 'expense', categoryId: 'dcat_housing', amount: J(15000), currency: 'DA', dayOfMonth: 1, note: '', assetTypeId: 'bank', active: true, lastGeneratedYM: monthsAgo(1).slice(0, 7), createdAt: now - 900 * DAY, updatedAt: now, deleted: false },
+      { id: 'drec_2', kind: 'expense', categoryId: 'dcat_bills', amount: J(2500), currency: 'DA', dayOfMonth: 5, note: '', assetTypeId: null, active: true, lastGeneratedYM: monthsAgo(1).slice(0, 7), createdAt: now - 900 * DAY, updatedAt: now, deleted: false }
     ];
     // استثمار موزَّع على 3 سنوات، بعدة عملات، بإيداعات وسحوبات — يظهر منحنى استثمار حقيقي لا نقطة واحدة
     const investments = [
-      { id: demoUid(), date: monthsAgo(33, 5), amount: 20000, note: 'إيداع رأس مال أولي', currency: 'DA', deleted: false },
-      { id: demoUid(), date: monthsAgo(24, 10), amount: 8000, note: 'إيداع إضافي', currency: 'DA', deleted: false },
-      { id: demoUid(), date: monthsAgo(18, 6), amount: -5000, note: 'سحب جزئي', currency: 'DA', deleted: false },
-      { id: demoUid(), date: monthsAgo(12, 3), amount: 10000, note: 'إيداع سنوي', currency: 'DA', deleted: false },
+      { id: demoUid(), date: monthsAgo(33, 5), amount: J(20000), note: 'إيداع رأس مال أولي', currency: 'DA', deleted: false },
+      { id: demoUid(), date: monthsAgo(24, 10), amount: J(8000), note: 'إيداع إضافي', currency: 'DA', deleted: false },
+      { id: demoUid(), date: monthsAgo(18, 6), amount: -J(5000), note: 'سحب جزئي', currency: 'DA', deleted: false },
+      { id: demoUid(), date: monthsAgo(12, 3), amount: J(10000), note: 'إيداع سنوي', currency: 'DA', deleted: false },
       { id: demoUid(), date: monthsAgo(6, 9), amount: 500, note: 'إيداع بالدولار', currency: 'USD', deleted: false },
-      { id: demoUid(), date: daysAgo(6), amount: 3000, note: 'إيداع شهري', currency: 'DA', deleted: false },
-      { id: demoUid(), date: daysAgo(2), amount: -800, note: 'سحب جزئي', currency: 'DA', deleted: false }
+      { id: demoUid(), date: daysAgo(6), amount: J(3000), note: 'إيداع شهري', currency: 'DA', deleted: false },
+      { id: demoUid(), date: daysAgo(2), amount: -J(800), note: 'سحب جزئي', currency: 'DA', deleted: false }
     ];
     // زكاة على مدار 3 سنوات (مسدَّدة سابقًا + دفعة حالية قيد الإخراج) — يُظهر قسم الإخراجات بتاريخه الكامل
     const zakatPayments = [
-      { id: demoUid(), name: 'زكاة المال — السنة الأولى', amount: 2400, currency: 'DA', date: monthsAgo(24, 1), delivered: true, deliveredAt: now - 700 * DAY, deleted: false },
-      { id: demoUid(), name: 'زكاة المال — السنة الثانية', amount: 2900, currency: 'DA', date: monthsAgo(12, 1), delivered: true, deliveredAt: now - 350 * DAY, deleted: false },
-      { id: demoUid(), name: 'زكاة المال — النصف الأول', amount: 3200, currency: 'DA', date: daysAgo(90), delivered: true, deliveredAt: now - 85 * DAY, deleted: false },
-      { id: demoUid(), name: 'زكاة المال — النصف الثاني (قيد الإخراج)', amount: 3400, currency: 'DA', date: daysAgo(5), delivered: false, deliveredAt: null, deleted: false }
+      { id: demoUid(), name: 'زكاة المال — السنة الأولى', amount: J(2400), currency: 'DA', date: monthsAgo(24, 1), delivered: true, deliveredAt: now - 700 * DAY, deleted: false },
+      { id: demoUid(), name: 'زكاة المال — السنة الثانية', amount: J(2900), currency: 'DA', date: monthsAgo(12, 1), delivered: true, deliveredAt: now - 350 * DAY, deleted: false },
+      { id: demoUid(), name: 'زكاة المال — النصف الأول', amount: J(3200), currency: 'DA', date: daysAgo(90), delivered: true, deliveredAt: now - 85 * DAY, deleted: false },
+      { id: demoUid(), name: 'زكاة المال — النصف الثاني (قيد الإخراج)', amount: J(3400), currency: 'DA', date: daysAgo(5), delivered: false, deliveredAt: null, deleted: false }
     ];
     const calendarItems = [
       { id: demoUid(), title: 'تسليم مشروع متجر البيت الذكي', date: daysAgo(-5), time: '17:00', note: '', reminderAt: now + 3 * DAY, notifiedAt: null, flagged: true, deleted: false, createdAt: now, updatedAt: now },
@@ -164,7 +176,7 @@
     for (let d = SNAP_SPAN_DAYS; d >= 0; d -= SNAP_STEP) {
       const progress = 1 - d / SNAP_SPAN_DAYS; // 0 → 1 من الماضي إلى اليوم
       const noise = Math.sin(d / 47) * 4000 + Math.cos(d / 29) * 2000;
-      const da = Math.round(30000 + progress * 100000 + noise);
+      const da = Math.round(J(30000) + progress * J(100000) + noise);
       const usd = Math.round(200 + progress * 900 + Math.sin(d / 60) * 60);
       const eur = Math.round(100 + progress * 600 + Math.cos(d / 55) * 40);
       const date = daysAgo(d);
